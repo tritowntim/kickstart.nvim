@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -320,7 +320,7 @@ require('lazy').setup({
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
-        { '<leader>t', group = '[T]oggle' },
+        { '<leader>t', group = '[T]est' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
@@ -435,6 +435,22 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
+
+      -- Testing (neotest)
+      vim.keymap.set('n', '<leader>tt', "<cmd>lua require('neotest').run.run()<CR>", { desc = '[T]est the [T]est under cursor', noremap = true, silent = true })
+      vim.keymap.set(
+        'n',
+        '<leader>tf',
+        "<cmd>lua require('neotest').run.run(vim.fn.expand('%'))<CR>",
+        { desc = '[T]est all tests in [F]ile', noremap = true, silent = true }
+      )
+      vim.keymap.set('n', '<leader>ts', "<cmd>lua require('neotest').summary.toggle()<CR>", { desc = '[T]est [S]ummary toggle', noremap = true, silent = true })
+      vim.keymap.set(
+        'n',
+        '<leader>to',
+        "<cmd>lua require('neotest').output_panel.toggle()<CR>",
+        { desc = '[T]est [O]utput window toggle', noremap = true, silent = true }
+      )
     end,
   },
 
@@ -925,6 +941,28 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  },
+
+  {
+    'nvim-neotest/neotest',
+    dependencies = {
+      'nvim-neotest/nvim-nio',
+      'nvim-lua/plenary.nvim',
+      'antoinemadec/FixCursorHold.nvim',
+      'nvim-treesitter/nvim-treesitter',
+      'olimorris/neotest-rspec',
+    },
+    config = function()
+      -- Neotest setup
+      require('neotest').setup {
+        adapters = {
+          require 'neotest-rspec',
+        },
+        quickfix = {
+          enabled = true, -- Show test results in the quickfix list
+        },
+      }
+    end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
