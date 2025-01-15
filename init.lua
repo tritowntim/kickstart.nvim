@@ -189,6 +189,10 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+-- Navigate quickfix
+vim.keymap.set('n', '<M-j>', ':cn<CR>', { desc = 'Next quickfix' })
+vim.keymap.set('n', '<M-k>', ':cp<CR>', { desc = 'Prev quickfix' })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -435,22 +439,6 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
-
-      -- Testing (neotest)
-      vim.keymap.set('n', '<leader>tt', "<cmd>lua require('neotest').run.run()<CR>", { desc = '[T]est the [T]est under cursor', noremap = true, silent = true })
-      vim.keymap.set(
-        'n',
-        '<leader>tf',
-        "<cmd>lua require('neotest').run.run(vim.fn.expand('%'))<CR>",
-        { desc = '[T]est all tests in [F]ile', noremap = true, silent = true }
-      )
-      vim.keymap.set('n', '<leader>ts', "<cmd>lua require('neotest').summary.toggle()<CR>", { desc = '[T]est [S]ummary toggle', noremap = true, silent = true })
-      vim.keymap.set(
-        'n',
-        '<leader>to',
-        "<cmd>lua require('neotest').output_panel.toggle()<CR>",
-        { desc = '[T]est [O]utput window toggle', noremap = true, silent = true }
-      )
     end,
   },
 
@@ -962,6 +950,22 @@ require('lazy').setup({
           enabled = true, -- Show test results in the quickfix list
         },
       }
+
+      -- Testing (neotest)
+      vim.keymap.set('n', '<leader>tt', "<cmd>lua require('neotest').run.run()<CR>", { desc = '[T]est the [T]est under cursor', noremap = true, silent = true })
+      vim.keymap.set(
+        'n',
+        '<leader>tf',
+        "<cmd>lua require('neotest').run.run(vim.fn.expand('%'))<CR>",
+        { desc = '[T]est all tests in [F]ile', noremap = true, silent = true }
+      )
+      vim.keymap.set('n', '<leader>ts', "<cmd>lua require('neotest').summary.toggle()<CR>", { desc = '[T]est [S]ummary toggle', noremap = true, silent = true })
+      vim.keymap.set(
+        'n',
+        '<leader>to',
+        "<cmd>lua require('neotest').output_panel.toggle()<CR>",
+        { desc = '[T]est [O]utput window toggle', noremap = true, silent = true }
+      )
     end,
   },
 
@@ -979,7 +983,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.gitsigns',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
