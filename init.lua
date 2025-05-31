@@ -679,7 +679,31 @@ require('lazy').setup({
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
-        elmls = {},
+        -- https://github.com/joakin/nvim/blob/master/lua/plugins/lspconfig.lua#L181
+        elmls = {
+          handlers = {
+            ['window/showMessageRequest'] = function(err, result, context, config)
+              if result and result.client_id then
+                local client = vim.lsp.get_client_by_id(result.client_id)
+                if client then
+                  client.rpc.notify('window/showMessageRequest', nil)
+                end
+              end
+              return nil
+              -- For some reason, the showMessageRequest handler doesn't work with
+              -- the format failed error. It just hangs on the screen and can't
+              -- interact with the vim.ui.select thingy. So skip it.
+              -- if result.message:find('Running elm-format failed', 1, true) then
+              -- print(result.message)
+              -- return vim.NIL
+              -- return nil
+              -- return { title = 'OK' }
+              --
+              -- end
+              -- return vim.lsp.handlers['window/showMessageRequest'](err, result, context, config)
+            end,
+          },
+        },
         ruby_lsp = { formatter = 'rubocop', linters = { 'rubocop' } },
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -742,46 +766,47 @@ require('lazy').setup({
     end,
   },
 
-  { -- Autoformat
-    'stevearc/conform.nvim',
-    event = { 'BufWritePre' },
-    cmd = { 'ConformInfo' },
-    keys = {
-      {
-        '<leader>f',
-        function()
-          require('conform').format { async = true, lsp_format = 'fallback' }
-        end,
-        mode = '',
-        desc = '[F]ormat buffer',
-      },
-    },
-    opts = {
-      notify_on_error = false,
-      format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
-        if disable_filetypes[vim.bo[bufnr].filetype] then
-          return nil
-        else
-          return {
-            timeout_ms = 500,
-            lsp_format = 'fallback',
-          }
-        end
-      end,
-      formatters_by_ft = {
-        lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
-      },
-    },
-  },
+  -- { -- Autoformat
+  --   'stevearc/conform.nvim',
+  --   event = { 'BufWritePre' },
+  --   cmd = { 'ConformInfo' },
+  --   keys = {
+  --     {
+  --       '<leader>f',
+  --       function()
+  --         require('conform').format { async = true, lsp_format = 'fallback' }
+  --       end,
+  --       mode = '',
+  --       desc = '[F]ormat buffer',
+  --     },
+  --   },
+  --   opts = {
+  --     log_level = vim.log.levels.DEBUG,
+  --     notify_on_error = false,
+  --     format_on_save = function(bufnr)
+  --       -- Disable "format_on_save lsp_fallback" for languages that don't
+  --       -- have a well standardized coding style. You can add additional
+  --       -- languages here or re-enable it for the disabled ones.
+  --       local disable_filetypes = { c = true, cpp = true }
+  --       if disable_filetypes[vim.bo[bufnr].filetype] then
+  --         return nil
+  --       else
+  --         return {
+  --           timeout_ms = 500,
+  --           lsp_format = 'fallback',
+  --         }
+  --       end
+  --     end,
+  --     formatters_by_ft = {
+  --       lua = { 'stylua' },
+  --       -- Conform can also run multiple formatters sequentially
+  --       -- python = { "isort", "black" },
+  --       --
+  --       -- You can use 'stop_after_first' to run the first available formatter from the list
+  --       -- javascript = { "prettierd", "prettier", stop_after_first = true },
+  --     },
+  --   },
+  -- },
 
   { -- Autocompletion
     'saghen/blink.cmp',
@@ -1036,7 +1061,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
@@ -1078,3 +1103,17 @@ vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 vim.opt.foldtext = 'v:lua.FoldText()'
 vim.opt.foldlevel = 99 -- Start with all folds open
 vim.opt.foldlevelstart = 99 -- Open folds up to a specific level
+
+-- https://chatgpt.com/c/683a507b-7370-8003-94ea-2120585e763c
+vim.lsp.handlers['window/showMessageRequest'] = function(_, result)
+  if result.message:find('Running elm-format failed', 1, true) then
+    print(result.message)
+    return result
+  end
+
+  -- Uncomment this line to nuke all popups entirely (dangerous!)
+  -- return nil
+
+  -- fallback to default
+  return vim.lsp.handlers['window/showMessageRequest'](nil, result)
+end
