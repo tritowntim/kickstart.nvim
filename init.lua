@@ -1078,3 +1078,18 @@ vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 vim.opt.foldtext = 'v:lua.FoldText()'
 vim.opt.foldlevel = 99 -- Start with all folds open
 vim.opt.foldlevelstart = 99 -- Open folds up to a specific level
+
+-- Prevent floating window popup during elm-ls running elm-format
+-- https://chatgpt.com/c/683a507b-7370-8003-94ea-2120585e763c
+vim.lsp.handlers['window/showMessageRequest'] = function(_, result)
+  if result.message:find('Running elm-format failed', 1, true) then
+    print(result.message)
+    return vim.NIL
+  end
+
+  -- Uncomment this line to nuke all popups entirely (dangerous!)
+  -- return nil
+
+  -- fallback to default
+  return vim.lsp.handlers['window/showMessageRequest'](nil, result)
+end
