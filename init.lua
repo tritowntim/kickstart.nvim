@@ -250,6 +250,22 @@ rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
+
+  {
+    'Shopify/ruby-lsp',
+    enabled = true,
+    ft = { 'ruby' },
+    dependencies = {
+      'neovim/nvim-lspconfig',
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-lua/plenary.nvim',
+    },
+    commandPath = vim.fn.trim(vim.fn.system 'asdf which ruby'),
+    config = function()
+      require('lspconfig').ruby_lsp.setup {}
+    end,
+  },
+
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
 
@@ -440,6 +456,15 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+
+      vim.keymap.set('n', '<leader>sd', function()
+        local dir = vim.fn.input('Grep in subdirectory: ', '', 'dir')
+        if dir ~= '' then
+          require('telescope.builtin').live_grep { cwd = dir }
+        else
+          print 'Cancelled or empty path'
+        end
+      end, { desc = '[S]earch in [D]irectory (prompted)' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -680,7 +705,7 @@ require('lazy').setup({
         -- pyright = {},
         -- rust_analyzer = {},
         elmls = {},
-        ruby_lsp = { formatter = 'rubocop', linters = { 'rubocop' } },
+        -- ruby_lsp = { formatter = 'rubocop', linters = { 'rubocop' } },
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
