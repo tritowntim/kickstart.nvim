@@ -262,9 +262,46 @@ require('lazy').setup({
     },
     commandPath = vim.fn.trim(vim.fn.system 'asdf which ruby'),
     config = function()
-      require('lspconfig').ruby_lsp.setup {}
+      -- require('lspconfig').ruby_lsp.setup {}
+      require('lspconfig').ruby_lsp.setup {
+        init_options = {
+          addonSettings = {
+            ['Ruby LSP Rails'] = {
+              enablePendingMigrationsPrompt = false,
+            },
+          },
+        },
+      }
     end,
   },
+
+  -- {
+  --   'adam12/ruby-lsp.nvim',
+  --   dependencies = {
+  --     'nvim-lua/plenary.nvim',
+  --     'neovim/nvim-lspconfig',
+  --   },
+  --   opts = {
+  --     lspconfig = {
+  --       init_options = {
+  --         enabledFeatures = {
+  --           documentFormatting = true,
+  --           documentSymbol = true,
+  --           hover = true,
+  --           diagnostics = true,
+  --           codeActions = true,
+  --           completion = true,
+  --           definition = true,
+  --         },
+  --         addonSettings = {
+  --           ['Ruby LSP Rails'] = {
+  --             enablePendingMigrationsPrompt = false,
+  --           },
+  --         },
+  --       },
+  --     },
+  --   },
+  -- },
 
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
