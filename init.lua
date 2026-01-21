@@ -267,16 +267,13 @@ require('lazy').setup({
     },
     commandPath = vim.fn.trim(vim.fn.system 'asdf which ruby'),
     config = function()
-      -- require('lspconfig').ruby_lsp.setup {}
-      require('lspconfig').ruby_lsp.setup {
+      vim.lsp.config('ruby_lsp', {
         init_options = {
           addonSettings = {
-            ['Ruby LSP Rails'] = {
-              enablePendingMigrationsPrompt = false,
-            },
+            ['Ruby LSP Rails'] = { enablePendingMigrationsPrompt = false },
           },
         },
-      }
+      })
     end,
   },
 
@@ -812,7 +809,8 @@ require('lazy').setup({
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
+            vim.lsp.config(server_name, server)
+            vim.lsp.enable(server_name)
           end,
         },
       }
@@ -1030,7 +1028,6 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
       ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'slim', 'vim', 'vimdoc' },
@@ -1047,6 +1044,9 @@ require('lazy').setup({
       indent = { enable = true, disable = { 'ruby' } },
       fold = { enable = true },
     },
+    config = function(_, opts)
+      require('nvim-treesitter.config').setup(opts)
+    end,
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
     --
